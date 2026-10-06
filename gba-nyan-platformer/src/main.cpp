@@ -9,10 +9,16 @@ int main()
     bn::core::init();
 
     // Начальные координаты Нян Кэта на экране (разрешение GBA 240x160)
-    fixed cat_x = 0;
-    fixed cat_y = 0;
-    fixed velocity_y = 0;
+    bn::fixed cat_x = 0;
+    bn::fixed cat_y = 0;
+    bn::fixed velocity_y = 0;
     bool is_jumping = false;
+
+    // 🥛 Логика комбо и бутылок молока
+    int milk_combo = 0;              // Счётчик комбо
+    bn::fixed milk_bottle_x = 60;    // Позиция первой бутылки молока по X
+    bn::fixed milk_bottle_y = 20;    // Позиция первой бутылки молока по Y
+    bool milk_visible = true;        // Статус бутылки (активна/съедена)
 
     while(true)
     {
@@ -46,6 +52,19 @@ int main()
                 is_jumping = false;
                 velocity_y = 0;
             }
+        }
+
+        // 🥛 Проверка хитбокса: если Нян Кэт касается активной бутылки молока
+        if(milk_visible && (cat_x >= milk_bottle_x - 12 && cat_x <= milk_bottle_x + 12) 
+                        && (cat_y >= milk_bottle_y - 12 && cat_y <= milk_bottle_y + 12))
+        {
+            milk_visible = false;   // Бутылка исчезает
+            milk_combo += 1;        // Комбо увеличивается на +1!
+            
+            // Логика спавна новой бутылки в случайном месте для бесконечного комбо
+            milk_bottle_x = -80 + (milk_combo * 20) % 160; 
+            milk_bottle_y = 10 + (milk_combo * 15) % 40;
+            milk_visible = true;    // Появляется новая бутылка
         }
 
         // Обновляем экран GBA (60 кадров в секунду)
